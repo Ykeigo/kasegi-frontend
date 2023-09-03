@@ -1,0 +1,10 @@
+.Backyard {
+  /*
+  width: 300px;
+  min-height: 300px;
+  */
+  border: solid grey;
+  margin: 20px;
+
+  text-align: center;
+}
