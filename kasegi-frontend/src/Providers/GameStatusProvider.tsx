@@ -13,17 +13,6 @@ export const GameStatusContext = createContext<GameStatusContextType>({
   getGameStatus: () => GameStatus.Idle,
 });
 
-const defaultMyTipsValue = {
-  id: "",
-  tip: {
-    title: "",
-    description: "",
-  },
-  helpful_num: 0,
-  helped_today: false,
-  forgot_today: false,
-};
-
 /**
  * プロバイダ (これ以下の要素で UserContext を使える)
  */
