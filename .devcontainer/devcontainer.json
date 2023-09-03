@@ -5,7 +5,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "workspaceFolder": "/workspaces/kasegi-frontend",
+  "workspaceFolder": "/workspaces/kasegi-frontend/",
   "customizations": {
     "vscode": {
       "extensions": [

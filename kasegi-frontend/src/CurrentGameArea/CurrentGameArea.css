@@ -1,0 +1,17 @@
+.CurrentGameArea {
+  background-color: rgb(217, 255, 160);
+  padding: 20px;
+
+  font-size: large;
+}
+
+.ChecklistLikeBootstrapList {
+  background-color: white;
+  padding: 20px;
+  /*
+  font-size: large;
+  width: 300px;
+  min-height: 300px;
+  text-align: left;*/
+  border-radius: 20px;
+}
