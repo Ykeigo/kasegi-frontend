@@ -1,13 +1,14 @@
 import { useContext, useState, FormEvent, ChangeEvent } from "react";
 import { GameStatusContext } from "../Providers/GameStatusProvider";
 import { ChecklistTemplateContext } from "../Providers/ChecklistTemplateProvider";
-import { GameStatus } from "../ClassDefinition";
+import { GameStatus, CheckItem } from "../ClassDefinition";
 import ListGroup from "react-bootstrap/ListGroup";
 
 import "./CurrentGameArea.css";
 
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import { ChecklistsContext } from "../Providers/ChecklistProvider";
 
 export default function CurrentGameArea() {
   return (
@@ -73,6 +74,7 @@ function StatusButton() {
 }
 
 function CheckingArea() {
+  const { addChecklist } = useContext(ChecklistsContext);
   const { checklistTemplate } = useContext(ChecklistTemplateContext);
   const { setGameStatus } = useContext(GameStatusContext);
 
@@ -99,6 +101,13 @@ function CheckingArea() {
     event.preventDefault();
     // stateで管理していた値を取得
     console.log("testValue", checkListItemValues);
+    //checkItemsを保存
+    const items: CheckItem[] = Array.from(checkListItemValues.entries()).map(
+      (item) => {
+        return { title: item[0], checked: item[1] };
+      }
+    );
+    addChecklist({ id: "hoge", checkItems: items, createdAt: new Date() });
     // リセット
     setCheckListItemValues(initialCheckItemStates);
     console.log("reseted to ", initialCheckItemStates);

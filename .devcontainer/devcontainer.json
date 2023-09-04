@@ -9,10 +9,11 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "xabikos.JavaScriptSnippets",
-        "esbenp.prettier-vscode",
-        "ZainChen.json"
-      ]
+		"xabikos.JavaScriptSnippets",
+		"esbenp.prettier-vscode",
+		"ZainChen.json",
+		"GitHub.copilot"
+	]
     }
   } // Workspaceのフォルダを指定
 
