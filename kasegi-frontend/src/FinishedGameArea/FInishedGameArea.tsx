@@ -16,14 +16,14 @@ export default function FinishedGameArea() {
 }
 
 function CheckMark(props: { checked: boolean }) {
-  const color = props.checked ? "green" : "grey";
+  const color = props.checked ? "green" : "white";
   return <FaCheck color={color} />;
 }
 
 function ChecklistArea() {
   const { checklists } = useContext(ChecklistsContext);
 
-  return checklists.map((checklist) => (
+  return checklists.reverse().map((checklist) => (
     <div>
       <ChecklistOfGame checklist={checklist} />
     </div>
@@ -33,9 +33,10 @@ function ChecklistArea() {
 function ChecklistOfGame(props: { checklist: Checklist }) {
   return (
     <div className="ChecklistOfGame">
+      {props.checklist.createdAt.toLocaleString()}の試合
       <ListGroup>
         {props.checklist.checkItems.map((checkItem) => (
-          <ListGroup.Item key={`default-${checkItem.title}`}>
+          <ListGroup.Item variant="dark" key={`default-${checkItem.title}`}>
             <CheckMark checked={checkItem.checked} /> {checkItem.title}
           </ListGroup.Item>
         ))}
