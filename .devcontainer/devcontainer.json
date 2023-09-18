@@ -5,15 +5,18 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
   "workspaceFolder": "/workspaces/kasegi-frontend/",
   "customizations": {
     "vscode": {
       "extensions": [
-		"xabikos.JavaScriptSnippets",
-		"esbenp.prettier-vscode",
-		"ZainChen.json",
-		"GitHub.copilot"
-	]
+        "xabikos.JavaScriptSnippets",
+        "esbenp.prettier-vscode",
+        "ZainChen.json",
+        "GitHub.copilot"
+      ]
     }
   } // Workspaceのフォルダを指定
 
