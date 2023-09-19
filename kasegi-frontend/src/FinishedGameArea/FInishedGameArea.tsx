@@ -5,6 +5,8 @@ import { ListGroup } from "react-bootstrap";
 import { FaCheck } from "react-icons/fa";
 import { Checklist } from "../ClassDefinition";
 
+import axios from "axios";
+
 import "./FinishedGameArea.css";
 
 export default function FinishedGameArea() {
