@@ -8,13 +8,15 @@ import { ChecklistsProvider } from "./Providers/ChecklistProvider";
 import { useEffect, useState } from "react";
 
 import axios from "axios";
+import { LoginUserProvider } from "./Providers/LoginUserProvider";
+import LoginManageArea from "./loginManageArea";
 
 function App() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost", {
+      .get("https://api.real-exp-kasegi.com/auth", {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
@@ -32,17 +34,20 @@ function App() {
   }, []);
 
   return (
-    <ChecklistTemplateProvider>
-      <ChecklistsProvider>
-        <GameStatusProvider>
-          <div className="App">
-            posts: {JSON.stringify(posts)}
-            <CurrentGameArea />
-            <FinishedGameArea />
-          </div>
-        </GameStatusProvider>
-      </ChecklistsProvider>
-    </ChecklistTemplateProvider>
+    <LoginUserProvider>
+      <ChecklistTemplateProvider>
+        <ChecklistsProvider>
+          <GameStatusProvider>
+            <div className="App">
+              posts: {JSON.stringify(posts)}
+              <LoginManageArea />
+              <CurrentGameArea />
+              <FinishedGameArea />
+            </div>
+          </GameStatusProvider>
+        </ChecklistsProvider>
+      </ChecklistTemplateProvider>
+    </LoginUserProvider>
   );
 }
 
