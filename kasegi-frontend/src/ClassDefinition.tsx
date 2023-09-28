@@ -20,3 +20,8 @@ export type Checklist = {
   checkItems: CheckItem[];
   createdAt: Date;
 };
+
+export type LoginUser = {
+  email: string;
+  sessoinToken: string;
+};
