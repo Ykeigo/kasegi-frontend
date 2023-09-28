@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+//import { useLocation } from "react-router-dom";
 
 import Button from "react-bootstrap/Button";
 
 export default function LoginManageArea() {
+  /*
   const search = useLocation().search;
   const query = new URLSearchParams(search);
   const name = query.get("name");
-
+  */
   return (
     <div className="FinishedGameArea">
       <LoginButton />
