@@ -10,36 +10,23 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { LoginUserProvider } from "./Providers/LoginUserProvider";
 import LoginManageArea from "./loginManageArea";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
-  const [posts, setPosts] = useState([]);
+  return (
+    <Routes>
+      <Route path={`/`} element={<Index />} />
+    </Routes>
+  );
+}
 
-  useEffect(() => {
-    axios
-      .get("https://api.real-exp-kasegi.com/auth", {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      }) //リクエストを飛ばすpath
-      .then((response) => {
-        console.log(response.data);
-        console.log(JSON.stringify(response.data));
-        setPosts(response.data);
-      }) //成功した場合、postsを更新する（then）
-      .catch(() => {
-        console.log("通信に失敗しました");
-      }); //失敗した場合(catch)
-
-    console.log(posts);
-  }, []);
-
+function Index() {
   return (
     <LoginUserProvider>
       <ChecklistTemplateProvider>
         <ChecklistsProvider>
           <GameStatusProvider>
             <div className="App">
-              posts: {JSON.stringify(posts)}
               <LoginManageArea />
               <CurrentGameArea />
               <FinishedGameArea />
