@@ -1,92 +1,90 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Button from "react-bootstrap/Button";
 
-export default function LoginManageArea() {
-  const initialLoginResponce: {
-    "redirect-url": string;
-  } = {
-    "redirect-url": "",
-  };
-  const [loginResponce, setLoginResponce] = useState(initialLoginResponce);
+type LoginResponce = {
+  "redirect-url": string;
+};
+const initialLoginResponce: LoginResponce = {
+  "redirect-url": "",
+};
 
-  const initialGoogleCallbackResponce: {
-    email: string;
-    message: string;
-    sessionToken: string;
-  } = {
-    email: "",
-    message: "",
-    sessionToken: "",
-  };
+type GoogleCallbackResponce = {
+  email: string;
+  message: string;
+  sessionToken: string;
+};
+const initialGoogleCallbackResponce: GoogleCallbackResponce = {
+  email: "",
+  message: "",
+  sessionToken: "",
+};
+
+export default function LoginManageArea() {
+  const navigate = useNavigate();
+  const [loginResponce, setLoginResponce] = useState(initialLoginResponce);
   const [googleCallbackResponce, setGoogleCallbackResponce] = useState(
     initialGoogleCallbackResponce
   );
+  const [emailForShow, setEmailForShow] = useState("");
 
   const search = useLocation().search;
   const query = new URLSearchParams(search);
   const code = query.get("code");
+  const sessionToken = window.localStorage.getItem("sessionToken");
 
   useEffect(() => {
-    if (code == null) {
-      axios
-        .get(
-          "https://api.real-exp-kasegi.com/auth?redirectUrl=http://localhost:3000",
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
+    async function fetchData() {
+      async function fetchUserId() {
+        try {
+          if (sessionToken != null) {
+            const emailResponce = await sendGetUserId(sessionToken);
+            console.log("emailResponce: " + emailResponce);
+            setEmailForShow(emailResponce);
+            return emailResponce;
+          } else {
+            console.log("sessionToken is null");
+            return "";
           }
-        ) //リクエストを飛ばすpath
-        .then((response) => {
-          console.log(response.data);
-          console.log(JSON.stringify(response.data));
-          setLoginResponce(response.data);
-        }) //成功した場合、postsを更新する（then）
-        .catch(() => {
-          console.log("通信に失敗しました");
-        }); //失敗した場合(catch)
-    } else {
-      axios
-        .get(
-          "https://api.real-exp-kasegi.com/google/callback?redirectUrl=http://localhost:3000&code=" +
-            code,
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          }
-        ) //リクエストを飛ばすpath
-        .then((response) => {
-          console.log(response.data);
-          console.log(JSON.stringify(response.data));
-          setGoogleCallbackResponce(response.data);
+        } catch {
+          // userIdがとれなかったらsessionTokenを削除し、デフォルト画面に戻すためにリロード
+          window.localStorage.removeItem("sessionToken");
+          navigate("/");
+          window.location.reload();
+          throw new Error("sessionToken expired. reload it.");
+        }
+      }
 
-          window.localStorage.setItem(
-            "sessionToken",
-            response.data.sessionToken
-          );
-        }) //成功した場合、postsを更新する（then）
-        .catch(() => {
-          console.log("通信に失敗しました");
-        }); //失敗した場合(catch)
+      const email = await fetchUserId();
 
-      console.log(googleCallbackResponce);
+      console.log(email);
+      console.log("fetchUserId completed");
+      if (email != "") console.log("current logging in :" + email);
+      else if (code == null) {
+        const r = await sendGetLoginUrl();
+        setLoginResponce(r);
+      } else {
+        const r = await sendVerifyAuthCode(code);
+        setGoogleCallbackResponce(r);
+        window.localStorage.setItem("sessionToken", r.sessionToken);
+        //ユーザー情報を取得し、URLのセッショントークンを消すためにリロード
+        navigate("/");
+        window.location.reload();
+      }
     }
+    fetchData();
   }, []);
 
-  if (code == null) {
+  if (sessionToken != null && emailForShow != "") {
+    return <div className="LoginArea">hello {emailForShow}</div>;
+  } else {
     return (
       <div className="LoginArea">
         code is {code}
         <LoginButton googleAuthorizeUrl={loginResponce["redirect-url"]} />
       </div>
-    );
-  } else {
-    return (
-      <div className="LoginArea">hello {googleCallbackResponce["email"]}</div>
     );
   }
 }
@@ -104,4 +102,81 @@ function LoginButton(props: { googleAuthorizeUrl: string }) {
       </Button>
     </div>
   );
+}
+//api.real-exp-kasegi.com/google/callback?redirectUrlhttp://localhost:3000/&code=4/0AfJohXm26DtSAv1lCkPXZLNnEAKvAOzXAeWqxAgKZK74iZm5M-CdQmEa1w8rVYQvuqBW1w
+
+async function sendGetLoginUrl(): Promise<LoginResponce> {
+  console.log(
+    "sending " +
+      "https://api.real-exp-kasegi.com/auth?redirectUrl=" +
+      window.location.href.split("?")[0].slice(0, -1) //最後の/を削除　TODO:なんで/があると動かないかわからない
+  );
+  return await axios
+    .get(
+      "https://api.real-exp-kasegi.com/auth?redirectUrl=" +
+        window.location.href.split("?")[0].slice(0, -1), //最後の/を削除　TODO:なんで/があると動かないかわからない,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    ) //リクエストを飛ばすpath
+    .then((response) => {
+      console.log(response.data);
+      console.log(JSON.stringify(response.data));
+      return response.data;
+    }) //成功した場合、postsを更新する（then）
+    .catch((e) => {
+      console.log("通信に失敗しました");
+      throw e;
+    }); //失敗した場合(catch)
+}
+
+async function sendVerifyAuthCode(
+  code: string
+): Promise<GoogleCallbackResponce> {
+  console.log(
+    "sending " +
+      "https://api.real-exp-kasegi.com/google/callback?redirectUrl=" +
+      window.location.href.split("?")[0].slice(0, -1) + //最後の/を削除　TODO:なんで/があると動かないかわからない
+      "&code=" +
+      code
+  );
+  return axios
+    .get(
+      "https://api.real-exp-kasegi.com/google/callback?redirectUrl=" +
+        window.location.href.split("?")[0].slice(0, -1) + //最後の/を削除　TODO:なんで/があると動かないかわからない
+        "&code=" +
+        code,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    ) //リクエストを飛ばすpath
+    .then((response) => {
+      console.log(response.data);
+      console.log(JSON.stringify(response.data));
+      return response.data;
+    }) //成功した場合、postsを更新する（then）
+    .catch((e) => {
+      console.log("通信に失敗しました");
+      throw e;
+    }); //失敗した場合(catch)
+}
+
+async function sendGetUserId(sessionToken: String): Promise<string> {
+  return axios
+    .post("https://api.real-exp-kasegi.com/getMyUser", {
+      SessionToken: sessionToken,
+    }) //リクエストを飛ばすpath
+    .then((response) => {
+      console.log(response.data);
+      console.log(JSON.stringify(response.data));
+      return response.data.user[0].email;
+    }) //成功した場合、postsを更新する（then）
+    .catch((e) => {
+      console.log("通信に失敗しました" + e.message);
+      throw e;
+    }); //失敗した場合(catch)
 }

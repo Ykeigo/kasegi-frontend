@@ -8,7 +8,9 @@ import "./CurrentGameArea.css";
 
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { ChecklistsContext } from "../Providers/ChecklistProvider";
+import { GameMatchesContext } from "../Providers/GameMatchProvider";
+import axios from "axios";
+import { GameMatch } from "../ClassDefinition";
 
 export default function CurrentGameArea() {
   return (
@@ -74,7 +76,7 @@ function StatusButton() {
 }
 
 function CheckingArea() {
-  const { addChecklist } = useContext(ChecklistsContext);
+  const { addGameMatch } = useContext(GameMatchesContext);
   const { checklistTemplate } = useContext(ChecklistTemplateContext);
   const { setGameStatus } = useContext(GameStatusContext);
 
@@ -107,7 +109,14 @@ function CheckingArea() {
         return { title: item[0], checked: item[1] };
       }
     );
-    addChecklist({ id: "hoge", checkItems: items, createdAt: new Date() });
+    const mathToCreate = {
+      id: "hoge",
+      checkItems: items,
+      createdAt: new Date(),
+    };
+    addGameMatch(mathToCreate);
+    //リモートに保存
+    createGameMatchRemote(mathToCreate);
     // リセット
     setCheckListItemValues(initialCheckItemStates);
     console.log("reseted to ", initialCheckItemStates);
@@ -133,4 +142,31 @@ function CheckingArea() {
       </Form>
     </div>
   );
+}
+
+function createGameMatchRemote(match: GameMatch) {
+  const sessionToken = localStorage.getItem("sessionToken");
+  if (sessionToken != "") {
+    console.log("send listMyGameMatch. sessionToken: " + sessionToken);
+    //match.checkItemsをTitleとIsCheckedに変換
+    axios
+      .post("https://api.real-exp-kasegi.com/createMyGameMatch", {
+        SessionToken: sessionToken,
+        GameMatch: {
+          GameId: "hoge",
+          CheckItems: match.checkItems.map((item) => {
+            return { Title: item.title, IsChecked: item.checked };
+          }),
+        },
+      }) //リクエストを飛ばすpath
+      .then((response) => {
+        console.log(response.data);
+        console.log(JSON.stringify(response.data));
+
+        //setChecklists(response.data);
+      }) //成功した場合、postsを更新する（then）
+      .catch(() => {
+        console.log("通信に失敗しました");
+      }); //失敗した場合(catch)
+  }
 }

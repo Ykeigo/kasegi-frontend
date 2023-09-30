@@ -3,7 +3,7 @@ import CurrentGameArea from "./CurrentGameArea/CurrentGameArea";
 import FinishedGameArea from "./FinishedGameArea/FInishedGameArea";
 import { GameStatusProvider } from "./Providers/GameStatusProvider";
 import { ChecklistTemplateProvider } from "./Providers/ChecklistTemplateProvider";
-import { ChecklistsProvider } from "./Providers/ChecklistProvider";
+import { GameMatchesProvider } from "./Providers/GameMatchProvider";
 
 import { useEffect, useState } from "react";
 
@@ -24,7 +24,7 @@ function Index() {
   return (
     <LoginUserProvider>
       <ChecklistTemplateProvider>
-        <ChecklistsProvider>
+        <GameMatchesProvider>
           <GameStatusProvider>
             <div className="App">
               <LoginManageArea />
@@ -32,7 +32,7 @@ function Index() {
               <FinishedGameArea />
             </div>
           </GameStatusProvider>
-        </ChecklistsProvider>
+        </GameMatchesProvider>
       </ChecklistTemplateProvider>
     </LoginUserProvider>
   );

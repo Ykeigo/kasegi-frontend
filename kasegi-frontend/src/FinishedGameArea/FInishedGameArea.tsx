@@ -1,9 +1,9 @@
-import { useContext } from "react";
-import { ChecklistsContext } from "../Providers/ChecklistProvider";
+import { useContext, useEffect } from "react";
+import { GameMatchesContext } from "../Providers/GameMatchProvider";
 import { ListGroup } from "react-bootstrap";
 
 import { FaCheck } from "react-icons/fa";
-import { Checklist } from "../ClassDefinition";
+import { GameMatch } from "../ClassDefinition";
 
 import axios from "axios";
 
@@ -23,21 +23,50 @@ function CheckMark(props: { checked: boolean }) {
 }
 
 function ChecklistArea() {
-  const { checklists } = useContext(ChecklistsContext);
+  const { gameMatches, setGameMatches } = useContext(GameMatchesContext);
+  useEffect(() => {
+    const sessionToken = localStorage.getItem("sessionToken");
+    if (sessionToken != null) {
+      console.log("send listMyGameMatch. sessionToken: " + sessionToken);
+      axios
+        .post("https://api.real-exp-kasegi.com/listMyGameMatch", {
+          SessionToken: sessionToken,
+        }) //リクエストを飛ばすpath
+        .then((response) => {
+          console.log(response.data);
+          const responceMatches: Object[] = response.data.gameMatches;
+          console.log(responceMatches);
+          //responceMatchesをGameMatchに変換してsetGameMatches
+          const convertedMatches = responceMatches.map((gm) =>
+            convertResponceToGameMatch(gm)
+          );
+          setGameMatches(convertedMatches);
+        }) //成功した場合、postsを更新する（then）
+        .catch((e) => {
+          console.log(e);
+          console.log("履歴の取得に失敗しました");
+        }); //失敗した場合(catch)
+    }
+  }, []);
 
-  return checklists.reverse().map((checklist) => (
-    <div>
-      <ChecklistOfGame checklist={checklist} />
-    </div>
-  ));
+  return gameMatches
+    .sort(function (a: GameMatch, b: GameMatch) {
+      if (a.createdAt > b.createdAt) return -1;
+      else return 1;
+    })
+    .map((gameMatch) => (
+      <div>
+        <ChecklistOfGame gameMatch={gameMatch} />
+      </div>
+    ));
 }
 
-function ChecklistOfGame(props: { checklist: Checklist }) {
+function ChecklistOfGame(props: { gameMatch: GameMatch }) {
   return (
     <div className="ChecklistOfGame">
-      {props.checklist.createdAt.toLocaleString()}の試合
+      {props.gameMatch.createdAt.toLocaleString()}の試合
       <ListGroup>
-        {props.checklist.checkItems.map((checkItem) => (
+        {props.gameMatch.checkItems.map((checkItem) => (
           <ListGroup.Item variant="dark" key={`default-${checkItem.title}`}>
             <CheckMark checked={checkItem.checked} /> {checkItem.title}
           </ListGroup.Item>
@@ -45,4 +74,14 @@ function ChecklistOfGame(props: { checklist: Checklist }) {
       </ListGroup>
     </div>
   );
+}
+
+function convertResponceToGameMatch(responce: any): GameMatch {
+  return {
+    id: responce.Id,
+    checkItems: responce.CheckItems.map((item: any) => {
+      return { title: item.Title, checked: item.IsChecked };
+    }),
+    createdAt: new Date(responce.CreatedAt),
+  };
 }
