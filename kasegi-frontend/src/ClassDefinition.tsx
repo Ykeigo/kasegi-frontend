@@ -15,7 +15,7 @@ export type CheckItem = {
   checked: boolean;
 };
 
-export type Checklist = {
+export type GameMatch = {
   id: string;
   checkItems: CheckItem[];
   createdAt: Date;
