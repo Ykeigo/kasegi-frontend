@@ -26,7 +26,7 @@ function ChecklistArea() {
   const { gameMatches, setGameMatches } = useContext(GameMatchesContext);
   useEffect(() => {
     const sessionToken = localStorage.getItem("sessionToken");
-    if (sessionToken != "") {
+    if (sessionToken != null) {
       console.log("send listMyGameMatch. sessionToken: " + sessionToken);
       axios
         .post("https://api.real-exp-kasegi.com/listMyGameMatch", {
