@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Button from "react-bootstrap/Button";
+import { Button, Navbar } from "react-bootstrap";
+
+import "./loginManageArea.css";
 
 type LoginResponce = {
   "redirect-url": string;
@@ -16,18 +18,18 @@ type GoogleCallbackResponce = {
   message: string;
   sessionToken: string;
 };
-const initialGoogleCallbackResponce: GoogleCallbackResponce = {
-  email: "",
-  message: "",
-  sessionToken: "",
-};
 
-export default function LoginManageArea() {
+export default function LoginHeader() {
+  return (
+    <Navbar className="header" bg="dark" variant="dark">
+      <LoginManageArea />
+    </Navbar>
+  );
+}
+
+function LoginManageArea() {
   const navigate = useNavigate();
   const [loginResponce, setLoginResponce] = useState(initialLoginResponce);
-  const [googleCallbackResponce, setGoogleCallbackResponce] = useState(
-    initialGoogleCallbackResponce
-  );
   const [emailForShow, setEmailForShow] = useState("");
 
   const search = useLocation().search;
@@ -67,7 +69,6 @@ export default function LoginManageArea() {
         setLoginResponce(r);
       } else {
         const r = await sendVerifyAuthCode(code);
-        setGoogleCallbackResponce(r);
         window.localStorage.setItem("sessionToken", r.sessionToken);
         //ユーザー情報を取得し、URLのセッショントークンを消すためにリロード
         navigate("/");
@@ -78,14 +79,9 @@ export default function LoginManageArea() {
   }, []);
 
   if (sessionToken != null && emailForShow != "") {
-    return <div className="LoginArea">hello {emailForShow}</div>;
+    return <Navbar.Brand>hello {emailForShow}</Navbar.Brand>;
   } else {
-    return (
-      <div className="LoginArea">
-        code is {code}
-        <LoginButton googleAuthorizeUrl={loginResponce["redirect-url"]} />
-      </div>
-    );
+    return <LoginButton googleAuthorizeUrl={loginResponce["redirect-url"]} />;
   }
 }
 

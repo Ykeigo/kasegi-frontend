@@ -5,9 +5,6 @@ import { GameStatusProvider } from "./Providers/GameStatusProvider";
 import { ChecklistTemplateProvider } from "./Providers/ChecklistTemplateProvider";
 import { GameMatchesProvider } from "./Providers/GameMatchProvider";
 
-import { useEffect, useState } from "react";
-
-import axios from "axios";
 import { LoginUserProvider } from "./Providers/LoginUserProvider";
 import LoginManageArea from "./loginManageArea";
 import { Routes, Route } from "react-router-dom";
@@ -26,8 +23,8 @@ function Index() {
       <ChecklistTemplateProvider>
         <GameMatchesProvider>
           <GameStatusProvider>
+            <LoginManageArea />
             <div className="App">
-              <LoginManageArea />
               <CurrentGameArea />
               <FinishedGameArea />
             </div>

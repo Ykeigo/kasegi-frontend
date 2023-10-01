@@ -1,5 +1,6 @@
 export type ChecklistTemplate = {
   id: string;
+  name: string;
   checkItems: string[];
 };
 
