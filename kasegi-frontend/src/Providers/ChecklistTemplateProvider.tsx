@@ -31,12 +31,12 @@ export const ChecklistTemplateProvider: React.FC<{
   const [checklistTemplates, setMyTips] = useState<ChecklistTemplate[]>([
     {
       id: "hoge",
-      name: "hoge",
+      name: "サンプル1（ゲームとか）",
       checkItems: ["楽しかった？", "ベストを尽くした？"],
     },
     {
       id: "sample2",
-      name: "sample2",
+      name: "サンプル2",
       checkItems: ["サンプル1", "サンプル2"],
     },
   ]);
