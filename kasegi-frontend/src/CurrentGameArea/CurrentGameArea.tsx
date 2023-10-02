@@ -11,11 +11,13 @@ import Form from "react-bootstrap/Form";
 import { GameMatchesContext } from "../Providers/GameMatchProvider";
 import axios from "axios";
 import { GameMatch } from "../ClassDefinition";
+import GameList from "./GameListArea";
 
 export default function CurrentGameArea() {
   return (
     <div className="CurrentGameArea">
       <div>今日も経験値を稼ごう！</div>
+      <GameList />
       <div className="MyTips">
         <ChecklistArea />
       </div>
