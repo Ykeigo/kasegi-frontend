@@ -12,6 +12,7 @@ import "./FinishedGameArea.css";
 export default function FinishedGameArea() {
   return (
     <div className="FinishedGameArea">
+      試合履歴
       <ChecklistArea />
     </div>
   );
