@@ -1,14 +1,17 @@
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import React from "react";
+import React, { useContext, useEffect } from "react";
 
 import ReactModal from "react-modal";
+import { ChecklistTemplateContext } from "../Providers/ChecklistTemplateProvider";
+import { CurrentChecklistTemplateIdContext } from "../Providers/CurrentChecklistTemplateIdProvider";
 
 //https://reactcommunity.org/react-modal/
 
 export default function GameList() {
   return (
-    <div className="GameSelecter">
+    <div className="ChecklistTemplateSelecter">
+      ゲームを選択
       <GameListSelect />
       <GameListModal />
     </div>
@@ -16,12 +19,31 @@ export default function GameList() {
 }
 
 function GameListSelect() {
+  const { checklistTemplates, getChecklistTemplateById } = useContext(
+    ChecklistTemplateContext
+  );
+  const { setCurrentChecklistTemplateId } = useContext(
+    CurrentChecklistTemplateIdContext
+  );
+
+  useEffect(() => {
+    setCurrentChecklistTemplateId(checklistTemplates[0].id);
+  }, []);
+
   return (
-    <Form.Select aria-label="Default select example">
-      <option>Open this select menu</option>
-      <option value="1">One</option>
-      <option value="2">Two</option>
-      <option value="3">Three</option>
+    <Form.Select
+      aria-label="Default select example"
+      onChange={(e) => {
+        console.log("e.target.value", e.target.value);
+        setCurrentChecklistTemplateId(e.target.value);
+        console.log(getChecklistTemplateById(e.target.value));
+      }}
+    >
+      {checklistTemplates.map((template) => (
+        <option key={template.id} value={template.id}>
+          {template.name}
+        </option>
+      ))}
     </Form.Select>
   );
 }
@@ -33,7 +55,7 @@ function GameListModal() {
     setIsOpen(false);
   }
   return (
-    <div className="AddGameButtonAndModal">
+    <div className="AddChecklistTemplateButtonAndModal">
       <Button onClick={() => setIsOpen(true)}>ゲームを追加</Button>
 
       <ReactModal

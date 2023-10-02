@@ -2,9 +2,10 @@ import React, { createContext, useState } from "react";
 import { ChecklistTemplate } from "../ClassDefinition";
 
 type ChecklistTemplateContextType = {
-  checklistTemplate: ChecklistTemplate;
-  set: (ct: ChecklistTemplate) => void;
-  get: () => ChecklistTemplate;
+  checklistTemplates: ChecklistTemplate[];
+  setChecklistTemplate: (ct: ChecklistTemplate[]) => void;
+  getChecklistTemplate: () => ChecklistTemplate[];
+  getChecklistTemplateById: (id: string) => ChecklistTemplate;
 };
 const defaultChecklistTemplateValue = {
   id: "",
@@ -14,9 +15,10 @@ const defaultChecklistTemplateValue = {
 
 export const ChecklistTemplateContext =
   createContext<ChecklistTemplateContextType>({
-    checklistTemplate: defaultChecklistTemplateValue,
-    set: (status: ChecklistTemplate) => {},
-    get: () => defaultChecklistTemplateValue,
+    checklistTemplates: [defaultChecklistTemplateValue],
+    setChecklistTemplate: (entities: ChecklistTemplate[]) => {},
+    getChecklistTemplate: () => [defaultChecklistTemplateValue],
+    getChecklistTemplateById: (id: string) => defaultChecklistTemplateValue,
   });
 
 /**
@@ -26,18 +28,37 @@ export const ChecklistTemplateProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   // ユーザ情報の初期値
-  const [checklistTemplate, setMyTips] = useState<ChecklistTemplate>({
-    id: "hoge",
-    name: "hoge",
-    checkItems: ["楽しかった？", "ベストを尽くした？"],
-  });
+  const [checklistTemplates, setMyTips] = useState<ChecklistTemplate[]>([
+    {
+      id: "hoge",
+      name: "hoge",
+      checkItems: ["楽しかった？", "ベストを尽くした？"],
+    },
+    {
+      id: "sample2",
+      name: "sample2",
+      checkItems: ["サンプル1", "サンプル2"],
+    },
+  ]);
 
-  const get = () => checklistTemplate;
+  const getChecklistTemplate = () => checklistTemplates;
 
-  const set = (entity: ChecklistTemplate) => setMyTips(entity);
+  const getChecklistTemplateById = (id: string) =>
+    checklistTemplates.find((ct) => ct.id === id) ??
+    defaultChecklistTemplateValue;
+
+  const setChecklistTemplate = (entities: ChecklistTemplate[]) =>
+    setMyTips(entities);
 
   return (
-    <ChecklistTemplateContext.Provider value={{ checklistTemplate, set, get }}>
+    <ChecklistTemplateContext.Provider
+      value={{
+        checklistTemplates,
+        setChecklistTemplate,
+        getChecklistTemplate,
+        getChecklistTemplateById,
+      }}
+    >
       {children}
     </ChecklistTemplateContext.Provider>
   );

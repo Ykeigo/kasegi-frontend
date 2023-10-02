@@ -9,6 +9,7 @@ import "./CurrentGameArea.css";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { GameMatchesContext } from "../Providers/GameMatchProvider";
+import { CurrentChecklistTemplateIdContext } from "../Providers/CurrentChecklistTemplateIdProvider";
 import axios from "axios";
 import { GameMatch } from "../ClassDefinition";
 import GameList from "./GameListArea";
@@ -41,13 +42,18 @@ function ChecklistArea() {
 }
 
 function ObjectiveList() {
-  const { checklistTemplate } = useContext(ChecklistTemplateContext);
+  const { getChecklistTemplateById } = useContext(ChecklistTemplateContext);
+  const { currentChecklistTemplateId } = useContext(
+    CurrentChecklistTemplateIdContext
+  );
 
   return (
     <ListGroup>
-      {checklistTemplate.checkItems.map((item) => (
-        <ListGroup.Item key={`default-${item}`}>{item}</ListGroup.Item>
-      ))}
+      {getChecklistTemplateById(currentChecklistTemplateId).checkItems.map(
+        (item) => (
+          <ListGroup.Item key={`default-${item}`}>{item}</ListGroup.Item>
+        )
+      )}
     </ListGroup>
   );
 }
@@ -79,13 +85,16 @@ function StatusButton() {
 
 function CheckingArea() {
   const { addGameMatch } = useContext(GameMatchesContext);
-  const { checklistTemplate } = useContext(ChecklistTemplateContext);
+  const { getChecklistTemplateById } = useContext(ChecklistTemplateContext);
+  const { currentChecklistTemplateId } = useContext(
+    CurrentChecklistTemplateIdContext
+  );
   const { setGameStatus } = useContext(GameStatusContext);
 
   // controlled formにするためにstateを定義
   // 参考:https://qiita.com/jinto/items/ac851f8eeb0514438890
   const initialCheckItemStates = new Map<string, boolean>();
-  checklistTemplate.checkItems.map((item) =>
+  getChecklistTemplateById(currentChecklistTemplateId).checkItems.map((item) =>
     initialCheckItemStates.set(item, false)
   );
 
@@ -128,16 +137,18 @@ function CheckingArea() {
   return (
     <div className="ChecklistLikeBootstrapList">
       <Form onSubmit={handleSubmit}>
-        {checklistTemplate.checkItems.map((item) => (
-          <div key={`default-${item}`} className="mb-3">
-            <Form.Check // prettier-ignore
-              type="checkbox"
-              id={`checkItem-${item}`} // idがなんで必要なのかはわからん bootstrapのページのコピペ
-              label={`${item}`}
-              onChange={handleChange(item)}
-            />
-          </div>
-        ))}
+        {getChecklistTemplateById(currentChecklistTemplateId).checkItems.map(
+          (item) => (
+            <div key={`default-${item}`} className="mb-3">
+              <Form.Check // prettier-ignore
+                type="checkbox"
+                id={`checkItem-${item}`} // idがなんで必要なのかはわからん bootstrapのページのコピペ
+                label={`${item}`}
+                onChange={handleChange(item)}
+              />
+            </div>
+          )
+        )}
         <Button variant="warning" type="submit">
           exp!
         </Button>
