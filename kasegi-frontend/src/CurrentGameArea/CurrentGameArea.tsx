@@ -107,30 +107,27 @@ function CheckingArea() {
       setCheckListItemValues(
         checkListItemValues.set(key, event.target.checked)
       );
-      console.log(key, event.target.checked);
     };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // stateで管理していた値を取得
-    console.log("testValue", checkListItemValues);
     //checkItemsを保存
     const items: CheckItem[] = Array.from(checkListItemValues.entries()).map(
       (item) => {
         return { title: item[0], checked: item[1] };
       }
     );
-    const mathToCreate = {
-      id: "hoge",
+    const matchToCreate = {
+      id: currentChecklistTemplateId,
       checkItems: items,
       createdAt: new Date(),
     };
-    addGameMatch(mathToCreate);
+    addGameMatch(matchToCreate);
     //リモートに保存
-    createGameMatchRemote(mathToCreate);
+    createGameMatchRemote(matchToCreate);
     // リセット
     setCheckListItemValues(initialCheckItemStates);
-    console.log("reseted to ", initialCheckItemStates);
     setGameStatus(GameStatus.Idle);
   };
 
@@ -160,7 +157,6 @@ function CheckingArea() {
 function createGameMatchRemote(match: GameMatch) {
   const sessionToken = localStorage.getItem("sessionToken");
   if (sessionToken != "") {
-    console.log("send listMyGameMatch. sessionToken: " + sessionToken);
     //match.checkItemsをTitleとIsCheckedに変換
     axios
       .post("https://api.real-exp-kasegi.com/createMyGameMatch", {
@@ -173,9 +169,6 @@ function createGameMatchRemote(match: GameMatch) {
         },
       }) //リクエストを飛ばすpath
       .then((response) => {
-        console.log(response.data);
-        console.log(JSON.stringify(response.data));
-
         //setChecklists(response.data);
       }) //成功した場合、postsを更新する（then）
       .catch(() => {

@@ -4,6 +4,7 @@ import { ChecklistTemplate } from "../ClassDefinition";
 type ChecklistTemplateContextType = {
   checklistTemplates: ChecklistTemplate[];
   setChecklistTemplate: (ct: ChecklistTemplate[]) => void;
+  addChecklistTemplate: (ct: ChecklistTemplate) => void;
   getChecklistTemplate: () => ChecklistTemplate[];
   getChecklistTemplateById: (id: string) => ChecklistTemplate;
 };
@@ -17,6 +18,7 @@ export const ChecklistTemplateContext =
   createContext<ChecklistTemplateContextType>({
     checklistTemplates: [defaultChecklistTemplateValue],
     setChecklistTemplate: (entities: ChecklistTemplate[]) => {},
+    addChecklistTemplate: (ct: ChecklistTemplate) => {},
     getChecklistTemplate: () => [defaultChecklistTemplateValue],
     getChecklistTemplateById: (id: string) => defaultChecklistTemplateValue,
   });
@@ -28,7 +30,9 @@ export const ChecklistTemplateProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   // ユーザ情報の初期値
-  const [checklistTemplates, setMyTips] = useState<ChecklistTemplate[]>([
+  const [checklistTemplates, setChecklistTemplates] = useState<
+    ChecklistTemplate[]
+  >([
     {
       id: "hoge",
       name: "サンプル1（ゲームとか）",
@@ -48,13 +52,17 @@ export const ChecklistTemplateProvider: React.FC<{
     defaultChecklistTemplateValue;
 
   const setChecklistTemplate = (entities: ChecklistTemplate[]) =>
-    setMyTips(entities);
+    setChecklistTemplates(entities);
+
+  const addChecklistTemplate = (ct: ChecklistTemplate) =>
+    setChecklistTemplates([...checklistTemplates, ct]);
 
   return (
     <ChecklistTemplateContext.Provider
       value={{
         checklistTemplates,
         setChecklistTemplate,
+        addChecklistTemplate,
         getChecklistTemplate,
         getChecklistTemplateById,
       }}
