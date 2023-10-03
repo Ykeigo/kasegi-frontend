@@ -147,14 +147,21 @@ function InputForm(props: { setIsOpen: (isOpen: boolean) => void }) {
           <Form.Label>目標項目名</Form.Label>
         </div>
         {fields.map((field, index) => (
-          <Form.Control
-            type="text"
-            key={field.id} // important to include key with field's id
-            {...register(`checkItemTitles.${index}.title`, { required: true })}
-          />
+          <div>
+            <Form.Label>項目{index + 1}</Form.Label>
+            <Form.Control
+              type="text"
+              key={field.id} // important to include key with field's id
+              {...register(`checkItemTitles.${index}.title`, {
+                required: true,
+              })}
+            />
+          </div>
         ))}
-        {errors.checkItemTitles && <span>項目名は必須です</span>}
-        <Button onClick={() => append({ title: "" })}>項目を追加</Button>
+        <div>{errors.checkItemTitles && <span>項目名は必須です</span>}</div>
+        <Button variant="secondary" onClick={() => append({ title: "" })}>
+          +項目を追加
+        </Button>
       </div>
 
       <Button type="submit">目標を作成</Button>
