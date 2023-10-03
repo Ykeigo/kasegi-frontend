@@ -43,11 +43,9 @@ function LoginManageArea() {
         try {
           if (sessionToken != null) {
             const emailResponce = await sendGetUserId(sessionToken);
-            console.log("emailResponce: " + emailResponce);
             setEmailForShow(emailResponce);
             return emailResponce;
           } else {
-            console.log("sessionToken is null");
             return "";
           }
         } catch {
@@ -61,8 +59,6 @@ function LoginManageArea() {
 
       const email = await fetchUserId();
 
-      console.log(email);
-      console.log("fetchUserId completed");
       if (email != "") console.log("current logging in :" + email);
       else if (code == null) {
         const r = await sendGetLoginUrl();
@@ -102,11 +98,6 @@ function LoginButton(props: { googleAuthorizeUrl: string }) {
 //api.real-exp-kasegi.com/google/callback?redirectUrlhttp://localhost:3000/&code=4/0AfJohXm26DtSAv1lCkPXZLNnEAKvAOzXAeWqxAgKZK74iZm5M-CdQmEa1w8rVYQvuqBW1w
 
 async function sendGetLoginUrl(): Promise<LoginResponce> {
-  console.log(
-    "sending " +
-      "https://api.real-exp-kasegi.com/auth?redirectUrl=" +
-      window.location.href.split("?")[0].slice(0, -1) //最後の/を削除　TODO:なんで/があると動かないかわからない
-  );
   return await axios
     .get(
       "https://api.real-exp-kasegi.com/auth?redirectUrl=" +
@@ -118,8 +109,6 @@ async function sendGetLoginUrl(): Promise<LoginResponce> {
       }
     ) //リクエストを飛ばすpath
     .then((response) => {
-      console.log(response.data);
-      console.log(JSON.stringify(response.data));
       return response.data;
     }) //成功した場合、postsを更新する（then）
     .catch((e) => {
@@ -131,13 +120,6 @@ async function sendGetLoginUrl(): Promise<LoginResponce> {
 async function sendVerifyAuthCode(
   code: string
 ): Promise<GoogleCallbackResponce> {
-  console.log(
-    "sending " +
-      "https://api.real-exp-kasegi.com/google/callback?redirectUrl=" +
-      window.location.href.split("?")[0].slice(0, -1) + //最後の/を削除　TODO:なんで/があると動かないかわからない
-      "&code=" +
-      code
-  );
   return axios
     .get(
       "https://api.real-exp-kasegi.com/google/callback?redirectUrl=" +
@@ -151,8 +133,6 @@ async function sendVerifyAuthCode(
       }
     ) //リクエストを飛ばすpath
     .then((response) => {
-      console.log(response.data);
-      console.log(JSON.stringify(response.data));
       return response.data;
     }) //成功した場合、postsを更新する（then）
     .catch((e) => {
@@ -167,8 +147,6 @@ async function sendGetUserId(sessionToken: String): Promise<string> {
       SessionToken: sessionToken,
     }) //リクエストを飛ばすpath
     .then((response) => {
-      console.log(response.data);
-      console.log(JSON.stringify(response.data));
       return response.data.user[0].email;
     }) //成功した場合、postsを更新する（then）
     .catch((e) => {

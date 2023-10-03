@@ -9,9 +9,36 @@ import { CurrentChecklistTemplateIdContext } from "../Providers/CurrentChecklist
 import { ChecklistTemplate } from "../ClassDefinition";
 import "./GameListArea.css";
 
+import axios from "axios";
+
 //https://reactcommunity.org/react-modal/
 
 export default function GameList() {
+  const { setCurrentChecklistTemplateId } = useContext(
+    CurrentChecklistTemplateIdContext
+  );
+  const { checklistTemplates, setChecklistTemplate } = useContext(
+    ChecklistTemplateContext
+  );
+  useEffect(() => {
+    async function loadChecklistTemplates() {
+      const loadedChecklistTemplates = await sendListChecklistTemplateRequest();
+      const saveToLocal = (cts: ChecklistTemplate[]) => {
+        console.log("current: ");
+        console.log(checklistTemplates);
+        console.log("saving: ");
+        console.log(cts);
+        setChecklistTemplate(cts);
+        console.log("checklistTemplates loaded");
+        console.log(checklistTemplates);
+        setCurrentChecklistTemplateId(cts[0].id);
+      };
+      saveToLocal(loadedChecklistTemplates);
+    }
+    loadChecklistTemplates();
+  }, []);
+
+  console.log(checklistTemplates);
   return (
     <div className="ChecklistTemplateSelecter">
       ゲームを選択
@@ -22,24 +49,18 @@ export default function GameList() {
 }
 
 function GameListSelect() {
-  const { checklistTemplates, getChecklistTemplateById } = useContext(
-    ChecklistTemplateContext
-  );
   const { setCurrentChecklistTemplateId } = useContext(
     CurrentChecklistTemplateIdContext
   );
-
-  useEffect(() => {
-    setCurrentChecklistTemplateId(checklistTemplates[0].id);
-  }, []);
+  const { checklistTemplates, getChecklistTemplateById } = useContext(
+    ChecklistTemplateContext
+  );
 
   return (
     <Form.Select
       aria-label="Default select example"
       onChange={(e) => {
-        console.log("e.target.value", e.target.value);
         setCurrentChecklistTemplateId(e.target.value);
-        console.log(getChecklistTemplateById(e.target.value));
       }}
     >
       {checklistTemplates.map((template) => (
@@ -82,10 +103,6 @@ function GameListModal() {
     </div>
   );
 }
-
-async function sendCreateChecklistTemplateRequest(
-  checklistTemplate: ChecklistTemplate
-) {}
 
 function getUniqueStr(strong: number = 1000) {
   return (
@@ -167,4 +184,63 @@ function InputForm(props: { setIsOpen: (isOpen: boolean) => void }) {
       <Button type="submit">目標を作成</Button>
     </form>
   );
+}
+
+async function sendCreateChecklistTemplateRequest(
+  checklistTemplate: ChecklistTemplate
+) {
+  const sessionToken = localStorage.getItem("sessionToken");
+  return axios
+    .post("https://api.real-exp-kasegi.com/createMyChecklistTemplate", {
+      SessionToken: sessionToken,
+      ChecklistTemplate: {
+        GameTitleId: "unused",
+        TemplateName: checklistTemplate.name,
+        CheckItems: checklistTemplate.checkItems.map((item) => {
+          return { Title: item, IsChecked: false };
+        }),
+      },
+    }) //リクエストを飛ばすpath
+    .then((response) => {
+      console.log(response.data);
+    }) //成功した場合、postsを更新する（then）
+    .catch((e) => {
+      console.log(e);
+      console.log("履歴の取得に失敗しました");
+      return [];
+    }); //失敗した場合(catch)
+}
+
+async function sendListChecklistTemplateRequest() {
+  const sessionToken = localStorage.getItem("sessionToken");
+  return axios
+    .post("https://api.real-exp-kasegi.com/listMyChecklistTemplate", {
+      SessionToken: sessionToken,
+    }) //リクエストを飛ばすpath
+    .then((response) => {
+      const responceChecklistTemplates: Object[] =
+        response.data.checklistTemplate;
+      // フロントの型に変換して保存
+      const convertedChecklistTemplates = responceChecklistTemplates.map((ct) =>
+        convertResponceToChecklistTemplates(ct)
+      );
+      return convertedChecklistTemplates;
+    }) //成功した場合、postsを更新する（then）
+    .catch((e) => {
+      console.log(e);
+      console.log("履歴の取得に失敗しました");
+      return [];
+    }); //失敗した場合(catch)
+}
+
+function convertResponceToChecklistTemplates(
+  responceObject: any
+): ChecklistTemplate {
+  return {
+    id: responceObject.Id,
+    name: responceObject.TemplateName,
+    checkItems: responceObject.CheckItems.map((item: any) => {
+      return item.Title;
+    }),
+  };
 }

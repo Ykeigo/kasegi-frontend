@@ -3,7 +3,7 @@ import { GameMatchesContext } from "../Providers/GameMatchProvider";
 import { ListGroup } from "react-bootstrap";
 
 import { FaCheck } from "react-icons/fa";
-import { GameMatch } from "../ClassDefinition";
+import { GameMatch, CheckItem } from "../ClassDefinition";
 
 import axios from "axios";
 
@@ -78,11 +78,19 @@ function ChecklistOfGame(props: { gameMatch: GameMatch }) {
 }
 
 function convertResponceToGameMatch(responce: any): GameMatch {
+  let checkItems: CheckItem[] = [];
+  try {
+    checkItems = responce.CheckItems.map((item: any) => {
+      return { title: item.Title, checked: item.IsChecked };
+    });
+  } catch (e) {
+    console.log(e);
+    console.log("checkItemsの変換に失敗しました");
+  }
+
   return {
     id: responce.Id,
-    checkItems: responce.CheckItems.map((item: any) => {
-      return { title: item.Title, checked: item.IsChecked };
-    }),
+    checkItems: checkItems,
     createdAt: new Date(responce.CreatedAt),
   };
 }
