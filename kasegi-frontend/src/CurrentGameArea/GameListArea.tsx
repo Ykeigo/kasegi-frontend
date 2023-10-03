@@ -1,10 +1,13 @@
-import Form from "react-bootstrap/Form";
+import { Form } from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import React, { useContext, useEffect } from "react";
+import { useForm, SubmitHandler, useFieldArray } from "react-hook-form";
 
 import ReactModal from "react-modal";
 import { ChecklistTemplateContext } from "../Providers/ChecklistTemplateProvider";
 import { CurrentChecklistTemplateIdContext } from "../Providers/CurrentChecklistTemplateIdProvider";
+import { ChecklistTemplate } from "../ClassDefinition";
+import "./GameListArea.css";
 
 //https://reactcommunity.org/react-modal/
 
@@ -49,16 +52,19 @@ function GameListSelect() {
 }
 
 function GameListModal() {
-  const [isModalOpen, setIsOpen] = React.useState(true);
+  const [isModalOpen, setIsOpen] = React.useState(false);
 
   function handleCloseModal() {
     setIsOpen(false);
   }
+
   return (
     <div className="AddChecklistTemplateButtonAndModal">
       <Button onClick={() => setIsOpen(true)}>ゲームを追加</Button>
 
       <ReactModal
+        className="Modal"
+        overlayClassName="Overlay"
         onRequestClose={
           () => handleCloseModal()
           /* Function that will be run when the modal is requested
@@ -70,8 +76,88 @@ function GameListModal() {
           /* Boolean describing if the modal should be shown or not. */
         }
       >
-        <p>Modal Content</p>
+        {/*<CreateChecklistTemplateForm />*/}
+        <InputForm setIsOpen={(isOpenToBe) => setIsOpen(isOpenToBe)} />
       </ReactModal>
     </div>
+  );
+}
+
+async function sendCreateChecklistTemplateRequest(
+  checklistTemplate: ChecklistTemplate
+) {}
+
+function getUniqueStr(strong: number = 1000) {
+  return (
+    new Date().getTime().toString(16) +
+    Math.floor(strong * Math.random()).toString(16)
+  );
+}
+
+type Inputs = {
+  checklistTemplateTitle: string;
+  checkItemTitles: { title: string }[];
+};
+
+function InputForm(props: { setIsOpen: (isOpen: boolean) => void }) {
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<Inputs>();
+
+  const { fields, append } = useFieldArray({
+    control, // control props comes from useForm (optional: if you are using FormContext)
+    name: "checkItemTitles", // unique name for your Field Array
+  });
+
+  const { addChecklistTemplate } = useContext(ChecklistTemplateContext);
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    console.log(data);
+
+    const checklistTemplateToCreate: ChecklistTemplate = {
+      id: getUniqueStr(),
+      name: data.checklistTemplateTitle,
+      checkItems: data.checkItemTitles.map(({ title }) => title),
+    };
+
+    addChecklistTemplate(checklistTemplateToCreate);
+    sendCreateChecklistTemplateRequest(checklistTemplateToCreate);
+    props.setIsOpen(false);
+  };
+
+  console.log(watch("checklistTemplateTitle")); // watch input value by passing the name of it
+
+  return (
+    /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Form.Label>目標タイトル</Form.Label>
+      <Form.Control
+        type="text"
+        {...register("checklistTemplateTitle", { required: true })}
+      />
+      {/* errors will return when field validation fails  */}
+      {errors.checklistTemplateTitle && <span>目標タイトルは必須です</span>}
+
+      <div className="CheckItemsToCreate">
+        <div>
+          <Form.Label>目標項目名</Form.Label>
+        </div>
+        {fields.map((field, index) => (
+          <Form.Control
+            type="text"
+            key={field.id} // important to include key with field's id
+            {...register(`checkItemTitles.${index}.title`, { required: true })}
+          />
+        ))}
+        {errors.checkItemTitles && <span>項目名は必須です</span>}
+        <Button onClick={() => append({ title: "" })}>項目を追加</Button>
+      </div>
+
+      <Button type="submit">目標を作成</Button>
+    </form>
   );
 }

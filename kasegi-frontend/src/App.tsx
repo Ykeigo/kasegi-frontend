@@ -1,4 +1,5 @@
 import "./App.css";
+import "./modalStyle.css";
 import CurrentGameArea from "./CurrentGameArea/CurrentGameArea";
 import FinishedGameArea from "./FinishedGameArea/FInishedGameArea";
 import { GameStatusProvider } from "./Providers/GameStatusProvider";
