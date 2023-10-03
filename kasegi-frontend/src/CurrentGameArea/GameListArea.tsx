@@ -24,13 +24,7 @@ export default function GameList() {
     async function loadChecklistTemplates() {
       const loadedChecklistTemplates = await sendListChecklistTemplateRequest();
       const saveToLocal = (cts: ChecklistTemplate[]) => {
-        console.log("current: ");
-        console.log(checklistTemplates);
-        console.log("saving: ");
-        console.log(cts);
         setChecklistTemplate(cts);
-        console.log("checklistTemplates loaded");
-        console.log(checklistTemplates);
         setCurrentChecklistTemplateId(cts[0].id);
       };
       saveToLocal(loadedChecklistTemplates);
@@ -78,7 +72,6 @@ function GameListModal() {
   function handleCloseModal() {
     setIsOpen(false);
   }
-
   return (
     <div className="AddChecklistTemplateButtonAndModal">
       <Button onClick={() => setIsOpen(true)}>ゲームを追加</Button>
